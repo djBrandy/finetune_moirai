@@ -34,8 +34,8 @@ class MoiraiTimeSeriesDataset(Dataset):
         table  = pq.read_table(parquet_path)
         self.series = [np.array(row.as_py(), dtype=np.float32)
                        for row in table.column("target")]
-        self.ctx  = context_len
-        self.pred = pred_len
+        self.ctx    = context_len
+        self.pred   = pred_len
         self.window = context_len + pred_len
 
         self.samples = []
@@ -48,10 +48,12 @@ class MoiraiTimeSeriesDataset(Dataset):
 
     def __getitem__(self, idx):
         s_idx, start = self.samples[idx]
-        window = self.series[s_idx][start: start + self.window]
-        ctx    = torch.tensor(window[:self.ctx],  dtype=torch.float32).unsqueeze(0)
-        target = torch.tensor(window[self.ctx:],  dtype=torch.float32).unsqueeze(0)
-        return ctx, target
+        window = self.series[s_idx][start: start + self.window]  # (ctx+pred,)
+        # MoiraiForecast._val_loss expects (batch, time, tgt_dim=1)
+        target   = torch.tensor(window, dtype=torch.float32).unsqueeze(-1)          # (T, 1)
+        observed = torch.ones(self.window, 1, dtype=torch.bool)                     # all observed
+        is_pad   = torch.zeros(self.window, dtype=torch.bool)                       # none padded
+        return target, observed, is_pad
 
 
 # ── Resume state ─────────────────────────────────────────────────────────────
@@ -105,14 +107,16 @@ def build_model(cfg: dict):
 def train_epoch(model, loader, optimizer, grad_clip, device, log_every):
     model.train()
     total_loss = 0.0
-    for step, (ctx, target) in enumerate(tqdm(loader, leave=False)):
-        ctx, target = ctx.to(device), target.to(device)
+    for step, (target, observed, is_pad) in enumerate(tqdm(loader, leave=False)):
+        target, observed, is_pad = target.to(device), observed.to(device), is_pad.to(device)
 
-        # Moirai expects (batch, time, dim) — permute from (batch, dim, time)
-        ctx_in    = ctx.permute(0, 2, 1)
-        target_in = target.permute(0, 2, 1)
+        loss = model._val_loss(
+            patch_size=model.hparams.patch_size,
+            target=target,
+            observed_target=observed,
+            is_pad=is_pad,
+        ).mean()
 
-        loss = model(past_target=ctx_in, future_target=target_in).loss
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
         optimizer.step()
@@ -120,8 +124,7 @@ def train_epoch(model, loader, optimizer, grad_clip, device, log_every):
 
         total_loss += loss.item()
         if (step + 1) % log_every == 0:
-            avg = total_loss / (step + 1)
-            log.info(f"  step {step+1} loss={avg:.6f}")
+            log.info(f"  step {step+1} loss={total_loss/(step+1):.6f}")
 
     return total_loss / len(loader)
 
