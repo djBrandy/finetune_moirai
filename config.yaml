@@ -4,6 +4,7 @@ model:
   context_length: 256
   prediction_length: 5
   patch_size: 32
+  target_dim: 16
 
 lora:
   r: 16

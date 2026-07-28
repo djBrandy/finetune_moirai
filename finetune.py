@@ -31,28 +31,24 @@ def load_config():
 
 class MoiraiTimeSeriesDataset(Dataset):
     def __init__(self, parquet_path: str, context_len: int, pred_len: int):
-        table  = pq.read_table(parquet_path)
-        self.series = [np.array(row.as_py(), dtype=np.float32)
-                       for row in table.column("target")]
-        self.ctx    = context_len
-        self.pred   = pred_len
-        self.window = context_len + pred_len
-
-        self.samples = []
-        for s_idx, s in enumerate(self.series):
-            for start in range(0, len(s) - self.window + 1):
-                self.samples.append((s_idx, start))
+        table        = pq.read_table(parquet_path)
+        raw          = table.column("target")[0].as_py()   # list of lists (T, n_features)
+        self.data    = np.array(raw, dtype=np.float32)     # (T, n_features)
+        self.n_feat  = self.data.shape[1]
+        self.ctx     = context_len
+        self.pred    = pred_len
+        self.window  = context_len + pred_len
+        self.samples = list(range(0, len(self.data) - self.window + 1))
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
-        s_idx, start = self.samples[idx]
-        window = self.series[s_idx][start: start + self.window]  # (ctx+pred,)
-        # MoiraiForecast._val_loss expects (batch, time, tgt_dim=1)
-        target   = torch.tensor(window, dtype=torch.float32).unsqueeze(-1)          # (T, 1)
-        observed = torch.ones(self.window, 1, dtype=torch.bool)                     # all observed
-        is_pad   = torch.zeros(self.window, dtype=torch.bool)                       # none padded
+        start  = self.samples[idx]
+        window = self.data[start: start + self.window]          # (T, n_features)
+        target   = torch.tensor(window,                    dtype=torch.float32)  # (T, n_feat)
+        observed = torch.ones(self.window, self.n_feat,    dtype=torch.bool)
+        is_pad   = torch.zeros(self.window,                dtype=torch.bool)
         return target, observed, is_pad
 
 
@@ -85,7 +81,7 @@ def build_model(cfg: dict):
         context_length=ctx,
         patch_size=patch,
         num_samples=100,
-        target_dim=1,
+        target_dim=cfg["model"]["target_dim"],
         feat_dynamic_real_dim=0,
         past_feat_dynamic_real_dim=0,
     )
@@ -153,7 +149,8 @@ def main():
         num_workers=0,   # 0 on Windows to avoid multiprocessing issues
         pin_memory=False,
     )
-    print(f"Dataset: {len(dataset)} samples")
+    n_feat = dataset.n_feat
+    print(f"Dataset: {len(dataset)} samples | {n_feat} features (multivariate)")
 
     # Model
     model = build_model(cfg).to(device)
