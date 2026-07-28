@@ -8,7 +8,7 @@ Skips download if already present.
 import os
 from huggingface_hub import snapshot_download
 
-MODEL_ID   = "Salesforce/moirai-R-1.1-large"
+MODEL_ID   = "Salesforce/moirai-1.1-R-large"
 LOCAL_PATH = os.path.join(os.path.dirname(__file__), "model_cache")
 
 def main():
