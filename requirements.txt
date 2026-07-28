@@ -1,7 +1,7 @@
 torch==2.2.2
 transformers==4.40.2
 peft==0.10.0
-uni2ts==0.1.0
+uni2ts==2.0.0
 gluonts==0.15.1
 pandas==2.2.2
 pyarrow==16.0.0

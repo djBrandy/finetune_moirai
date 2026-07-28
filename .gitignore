@@ -1,6 +1,7 @@
 checkpoints/
 data/
 logs/
+model_cache/
 __pycache__/
 *.pt
 *.parquet

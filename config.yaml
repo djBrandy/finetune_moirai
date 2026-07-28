@@ -1,6 +1,6 @@
 # Moirai-large LoRA finetuning config
 model:
-  name: "Salesforce/moirai-R-1.1-large"
+  name: "model_cache"
   context_length: 256
   prediction_length: 5
   patch_size: 32
