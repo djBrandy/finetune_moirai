@@ -1,10 +1,17 @@
-# Moirai-large LoRA finetuning config
-model:
-  name: "model_cache"
-  context_length: 256
-  prediction_length: 5
-  patch_size: 32
-  target_dim: 16
+# Moirai-large Progressive Fine-Tuning Config
+# To advance phases: increment training.phase (1→2→3→4)
+# All model params auto-configured per phase — do not edit model section manually.
+
+training:
+  phase: 1              # 1=M5  2=M1  3=H1  4=D1
+  epochs: 200
+  batch_size: 8
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  grad_clip: 1.0
+  cpu_threads: 4
+  save_every_n_epochs: 10
+  log_every_n_steps: 100
 
 lora:
   r: 16
@@ -12,26 +19,41 @@ lora:
   lora_dropout: 0.05
   target_modules: ["q_proj", "v_proj", "k_proj", "out_proj"]
 
-training:
-  epochs: 200
-  batch_size: 8
-  learning_rate: 0.0001
-  weight_decay: 0.01
-  grad_clip: 1.0
-  num_workers: 4
-  cpu_threads: 4
-  save_every_n_epochs: 5
-  log_every_n_steps: 50
-
 data:
   raw_dir: "C:/Users/dando/Desktop/backtest_data"
   processed_dir: "data"
-  timeframes: ["D1", "H1", "M5", "M1"]
-  primary_tf: "D1"
+  timeframes: ["M5", "M1", "H1", "D1"]
   train_end: "2022-12-31"
 
 paths:
   checkpoints: "checkpoints"
   logs: "logs"
-  best_model: "checkpoints/best_model"
+  base_model: "model_cache"
   resume_state: "checkpoints/resume_state.json"
+
+# Phase definitions — do not edit
+phases:
+  1:
+    primary_tf: "M5"
+    context_length: 288
+    prediction_length: 12
+    patch_size: 32
+    best_model: "checkpoints/phase1_best"
+  2:
+    primary_tf: "M1"
+    context_length: 1440
+    prediction_length: 60
+    patch_size: 32
+    best_model: "checkpoints/phase2_best"
+  3:
+    primary_tf: "H1"
+    context_length: 120
+    prediction_length: 5
+    patch_size: 16
+    best_model: "checkpoints/phase3_best"
+  4:
+    primary_tf: "D1"
+    context_length: 256
+    prediction_length: 5
+    patch_size: 32
+    best_model: "checkpoints/phase4_best"
