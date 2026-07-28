@@ -1,0 +1,8 @@
+checkpoints/
+data/
+logs/
+__pycache__/
+*.pt
+*.parquet
+*.pyc
+.env

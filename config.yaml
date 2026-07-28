@@ -1,0 +1,36 @@
+# Moirai-large LoRA finetuning config
+model:
+  name: "Salesforce/moirai-R-1.1-large"
+  context_length: 256
+  prediction_length: 5
+  patch_size: 32
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules: ["q_proj", "v_proj", "k_proj", "out_proj"]
+
+training:
+  epochs: 200
+  batch_size: 8
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  grad_clip: 1.0
+  num_workers: 4
+  cpu_threads: 4
+  save_every_n_epochs: 5
+  log_every_n_steps: 50
+
+data:
+  raw_dir: "C:/Users/dando/Desktop/backtest_data"
+  processed_dir: "data"
+  timeframes: ["D1", "H1", "M5", "M1"]
+  primary_tf: "D1"
+  train_end: "2022-12-31"
+
+paths:
+  checkpoints: "checkpoints"
+  logs: "logs"
+  best_model: "checkpoints/best_model"
+  resume_state: "checkpoints/resume_state.json"
