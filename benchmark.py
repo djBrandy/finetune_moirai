@@ -35,11 +35,13 @@ def main():
     cfg = load_config()
     torch.set_num_threads(cfg["training"]["cpu_threads"])
 
-    ctx      = cfg["model"]["context_length"]       # 256
-    pred     = cfg["model"]["prediction_length"]    # 5
-    patch    = cfg["model"]["patch_size"]           # 32
-    batch    = cfg["training"]["batch_size"]        # 8
-    epochs   = cfg["training"]["epochs"]            # 200
+    phase    = cfg["training"]["phase"]
+    pc       = cfg["phases"][phase]
+    ctx      = pc["context_length"]
+    pred     = pc["prediction_length"]
+    patch    = pc["patch_size"]
+    batch    = cfg["training"]["batch_size"]
+    epochs   = cfg["training"]["epochs"]
 
     # Estimate dataset size from actual parquet if available, else use known row count
     import os, pyarrow.parquet as pq
