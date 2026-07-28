@@ -23,7 +23,19 @@ data:
   raw_dir: "C:/Users/dando/Desktop/backtest_data"
   processed_dir: "data"
   timeframes: ["M5", "M1", "H1", "D1"]
-  train_end: "2022-12-31"
+  train_end: "2020-12-31"
+  val_end:   "2022-12-31"
+
+signal:
+  # Calibrated to XBRUSD M5 log-return distribution
+  # mean_abs_return and spread_cost derived from training data stats
+  tanh_scale: 50.0        # calibrated: XBRUSD M5 mean abs log-return ~0.0002
+  min_tradeable_return: 0.0003  # must exceed spread cost to be worth trading
+  long_threshold:  0.25
+  short_threshold: -0.25
+  # conviction scaling for C# position sizing (0=min_lots, 1=max_lots)
+  conviction_floor: 0.0
+  conviction_ceil:  1.0
 
 paths:
   checkpoints: "checkpoints"

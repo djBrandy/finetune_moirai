@@ -126,9 +126,10 @@ def main():
     print(f"  TOTAL (estimate) : {format_duration(total_secs)}")
     print(f"{'='*50}")
     print()
-    print("  NOTE: Actual time will be ~2-4x longer than this estimate")
-    print("  because the real Moirai-large model is significantly larger")
-    print("  than the dummy used here. Use this as a lower-bound estimate.")
+    print("  NOTE: Actual time will be ~5-10x longer than this estimate.")
+    print("  Moirai-large is significantly larger than this dummy, and")
+    print("  _val_loss samples the distribution 100 times per step.")
+    print("  Use this as a strict lower-bound only.")
     print()
 
 
