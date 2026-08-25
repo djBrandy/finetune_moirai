@@ -1,0 +1,26 @@
+2026-07-28 14:27:09,508 INFO Phase 1 | Base: model_cache
+2026-07-28 14:27:15,578 INFO Phase 1 start epoch 1
+2026-07-28 17:53:10,397 INFO   step 100 loss=-64.720345
+2026-07-29 00:16:38,145 INFO Phase 1 | Base: model_cache
+2026-07-29 00:16:48,859 INFO Phase 1 start epoch 1
+2026-07-29 03:41:16,747 INFO   step 100 loss=-65.084264
+2026-07-29 06:30:14,702 INFO   step 200 loss=-66.785296
+2026-07-29 09:44:05,665 INFO Phase 1 | Base: model_cache
+2026-07-29 09:44:11,989 INFO Phase 1 start epoch 1
+2026-07-29 14:48:18,353 INFO   step 100 loss=-64.323930
+2026-07-29 16:17:05,077 INFO Phase 1 | Base: model_cache
+2026-07-29 16:17:12,805 INFO Phase 1 start epoch 1
+2026-07-29 17:11:18,314 INFO Phase 1 | Base: model_cache
+2026-07-29 17:11:45,445 INFO Phase 1 start epoch 1
+2026-07-30 08:30:21,838 INFO Phase 1 | Base: model_cache
+2026-07-30 08:30:34,578 INFO Phase 1 start epoch 1
+2026-07-30 10:38:53,987 INFO   step 100 loss=-90.903891
+2026-07-30 12:46:28,852 INFO   step 200 loss=-92.362814
+2026-07-30 13:45:56,591 INFO Phase 1 | Base: model_cache
+2026-07-30 13:46:13,012 INFO Phase 1 start epoch 1
+2026-07-30 14:01:07,850 INFO Phase 1 | Base: model_cache
+2026-07-30 14:01:17,894 INFO Phase 1 start epoch 1
+2026-07-30 14:55:31,551 INFO Phase 1 | Base: model_cache
+2026-07-30 14:56:31,026 INFO Phase 1 start epoch 1
+2026-07-31 02:11:56,927 INFO   step 300 loss=-94.547634
+2026-07-31 10:03:40,632 INFO   step 400 loss=-94.766228

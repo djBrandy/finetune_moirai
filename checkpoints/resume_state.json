@@ -1,0 +1,7 @@
+{
+  "phase": 1,
+  "epoch": 0,
+  "stage": "train",
+  "step": 400,
+  "best_val_loss": Infinity
+}

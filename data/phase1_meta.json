@@ -1,0 +1,31 @@
+{
+  "phase": 1,
+  "primary_tf": "M5",
+  "n_features": 16,
+  "rule": "5min",
+  "feature_cols": [
+    "log_return_M5",
+    "log_hl_M5",
+    "log_co_M5",
+    "volume_M5",
+    "log_return_M1",
+    "log_hl_M1",
+    "log_co_M1",
+    "volume_M1",
+    "log_return_H1",
+    "log_hl_H1",
+    "log_co_H1",
+    "volume_H1",
+    "log_return_D1",
+    "log_hl_D1",
+    "log_co_D1",
+    "volume_D1"
+  ],
+  "return_stats": {
+    "mean_abs_return": 0.0009533818811178207,
+    "std_return": 0.0024033701047301292,
+    "median_abs_return": 0.0005345211829990149
+  },
+  "train_end": "2020-12-31",
+  "val_end": "2022-12-31"
+}
