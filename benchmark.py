@@ -45,16 +45,17 @@ def main():
 
     # Estimate dataset size from actual parquet if available, else use known row count
     import os, pyarrow.parquet as pq
+    stride = cfg["training"].get("window_stride", patch)
+    window = ctx + pred
     parquet_path = os.path.join(cfg["data"]["processed_dir"], "train.parquet")
     if os.path.exists(parquet_path):
         table       = pq.read_table(parquet_path)
         n_series    = len(table)
         series_lens = [len(row.as_py()) for row in table.column("target")]
-        window      = ctx + pred
-        n_samples   = sum(max(0, l - window + 1) for l in series_lens)
+        n_samples   = sum(max(0, (l - window) // stride + 1) for l in series_lens if l >= window)
     else:
-        # Fallback: D1 has ~1943 rows, 12 feature columns after resampling
-        n_samples = 12 * max(0, 1943 - (ctx + pred) + 1)
+        # Fallback: D1 has ~1943 rows in a single multivariate series (not one per feature)
+        n_samples = max(0, (1943 - window) // stride + 1)
 
     steps_per_epoch = math.ceil(n_samples / batch)
 
@@ -64,6 +65,7 @@ def main():
     print(f"  CPU threads      : {cfg['training']['cpu_threads']}")
     print(f"  Context length   : {ctx}")
     print(f"  Prediction length: {pred}")
+    print(f"  Window stride    : {stride}")
     print(f"  Batch size       : {batch}")
     print(f"  Estimated samples: {n_samples:,}")
     print(f"  Steps per epoch  : {steps_per_epoch:,}")
@@ -127,8 +129,10 @@ def main():
     print(f"{'='*50}")
     print()
     print("  NOTE: Actual time will be ~5-10x longer than this estimate.")
-    print("  Moirai-large is significantly larger than this dummy, and")
-    print("  _val_loss samples the distribution 100 times per step.")
+    print("  Moirai-large is significantly larger than this dummy, _val_loss")
+    print("  samples the distribution repeatedly per step, and the real")
+    print("  training loop also runs a periodic directional-loss sampling")
+    print("  pass (see directional_every_n_steps) that this dummy doesn't model.")
     print("  Use this as a strict lower-bound only.")
     print()
 

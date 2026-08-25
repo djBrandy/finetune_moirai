@@ -4,7 +4,8 @@
 
 training:
   phase: 1              # 1=M5  2=M1  3=H1  4=D1
-  epochs: 200
+  epochs: 15             # ceiling, not a target — early_stopping_patience below will
+                         # usually stop it sooner once val loss plateaus
   batch_size: 8
   learning_rate: 0.0001
   weight_decay: 0.01
@@ -12,6 +13,23 @@ training:
   cpu_threads: 4
   save_every_n_epochs: 10
   log_every_n_steps: 100
+  early_stopping_patience: 5    # stop if val loss hasn't improved in 5 epochs (0 = disabled)
+
+  # window_stride: 32           # step between training windows; if omitted, defaults to
+                                 # this phase's patch_size. stride=1 (old default) builds a
+                                 # window at every offset — huge redundancy, ~343k windows/epoch
+                                 # for phase 1. Striding by patch_size cuts steps ~32x with
+                                 # minimal signal loss since neighboring windows barely differ.
+
+  checkpoint_every_n_steps: 50   # save weights/optimizer/resume-state every N steps,
+                                 # not just at epoch end — an interruption now costs at
+                                 # most ~50 steps of progress instead of a full epoch
+
+  directional_every_n_steps: 10  # only run the 20x-sample directional forward pass every
+                                 # N steps instead of every step (it's the expensive part
+                                 # of hybrid_loss); other steps use pure distributional loss
+  directional_num_samples: 8     # samples used for the directional penalty when it does run
+                                 # (was hardcoded to 20 in finetune.py)
 
 lora:
   r: 16
@@ -20,7 +38,7 @@ lora:
   target_modules: ["q_proj", "v_proj", "k_proj", "out_proj"]
 
 data:
-  raw_dir: "C:/Users/dando/Desktop/backtest_data"
+  raw_dir: "C:/Users/dando/Desktop/XBRUSD_data_2014-2022"
   processed_dir: "data"
   timeframes: ["M5", "M1", "H1", "D1"]
   train_end: "2020-12-31"

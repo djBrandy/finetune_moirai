@@ -99,13 +99,21 @@ def main():
         df        = load_and_clean(path)
         df        = compute_features(df)
         resampled = resample_to_freq(df, tf, rule)
+        print(f"  {tf}: {len(resampled)} rows, range: {resampled['timestamp'].min()} to {resampled['timestamp'].max()}")
         frames.append(resampled)
         print(f"  {tf}: {len(resampled)} rows at {primary_tf} frequency")
 
     merged = frames[0]
     for frame in frames[1:]:
-        merged = pd.merge(merged, frame, on="timestamp", how="inner")
-    merged = merged.sort_values("timestamp").reset_index(drop=True)
+        merged = pd.merge(merged, frame, on="timestamp", how="left")
+    
+    # Forward fill to propagate higher timeframe data (like D1) to lower timeframes
+    merged = merged.ffill()
+    
+    # Drop rows where we have missing values that couldn't be filled (start of data)
+    merged = merged.dropna().sort_values("timestamp").reset_index(drop=True)
+    
+    print(f"  Final Merged data range: {merged['timestamp'].min()} to {merged['timestamp'].max()}")
 
     feature_cols = [c for c in merged.columns if c != "timestamp"]
     n_features   = len(feature_cols)
